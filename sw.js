@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chunglun-wongwang-v1';
+const CACHE_NAME = 'chunglun-wongwang-v9';
 const URLS_TO_CACHE = [
   './',
   './index.html',
@@ -24,9 +24,18 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request);
-    })
-  );
+  const request = event.request;
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).then(response => {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        return response;
+      }).catch(() => caches.match(request))
+    );
+  } else {
+    event.respondWith(
+      caches.match(request).then(response => response || fetch(request))
+    );
+  }
 });
