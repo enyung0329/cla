@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chunglun-wongwang-v17';
+const CACHE_NAME = 'chunglun-wongwang-v18';
 const URLS_TO_CACHE = [
   './',
   './index.html',
