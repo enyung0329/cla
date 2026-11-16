@@ -14,3 +14,5 @@ fflate.min.js https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js
 xlsx.full.min.js https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js
 FFLATE-LICENSE.txt https://cdn.jsdelivr.net/npm/fflate@0.8.2/LICENSE
 SHEETJS-LICENSE.txt https://cdn.sheetjs.com/xlsx-0.20.3/package/LICENSE
+chi_tra_best.traineddata.gz https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/main/chi_tra.traineddata (gzip) SHA256 e2a3dd1eb6cbc0203e23d3a040e4cd64470af81eb08eb99cce33a14ff683b8ea
+eng_best.traineddata.gz https://raw.githubusercontent.com/tesseract-ocr/tessdata_best/main/eng.traineddata (gzip) SHA256 940647c38624231b19fd97aa8646ae6204a6ffe97d6a53f2092cf42efee26ff7
