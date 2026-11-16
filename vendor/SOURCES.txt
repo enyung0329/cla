@@ -10,3 +10,7 @@ tesseract-core-lstm.wasm.js https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0
 tesseract-core-lstm.wasm https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-lstm.wasm
 tesseract-core-simd-lstm.wasm.js https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-simd-lstm.wasm.js
 tesseract-core-simd-lstm.wasm https://cdn.jsdelivr.net/npm/tesseract.js-core@6.0.0/tesseract-core-simd-lstm.wasm
+fflate.min.js https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js
+xlsx.full.min.js https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js
+FFLATE-LICENSE.txt https://cdn.jsdelivr.net/npm/fflate@0.8.2/LICENSE
+SHEETJS-LICENSE.txt https://cdn.sheetjs.com/xlsx-0.20.3/package/LICENSE

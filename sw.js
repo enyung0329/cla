@@ -1,9 +1,13 @@
-const CACHE_NAME = 'chunglun-wongwang-v22.3';
+const CACHE_NAME = 'chunglun-wongwang-v22.4';
 const URLS_TO_CACHE = [
-  './',
-  './index.html',
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./icon-192.png",
+  "./icon-512.png",
   "./vendor/chi_tra.traineddata.gz",
   "./vendor/eng.traineddata.gz",
+  "./vendor/fflate.min.js",
   "./vendor/pdf.min.js",
   "./vendor/pdf.worker.min.js",
   "./vendor/tesseract-core-lstm.wasm",
@@ -12,9 +16,7 @@ const URLS_TO_CACHE = [
   "./vendor/tesseract-core-simd-lstm.wasm.js",
   "./vendor/tesseract.min.js",
   "./vendor/worker.min.js",
-  './manifest.webmanifest',
-  './icon-192.png',
-  './icon-512.png'
+  "./vendor/xlsx.full.min.js"
 ];
 
 self.addEventListener('install', event => {

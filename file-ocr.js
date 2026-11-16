@@ -12,7 +12,8 @@
  async function recognizeImage(image) {
   await loadScript('tesseract.min.js','Tesseract');
   if(!worker)worker=await Tesseract.createWorker('chi_tra+eng',1,{workerPath:base+'worker.min.js',corePath:base,langPath:base,workerBlobURL:false,logger:m=>{if(m.status)status.textContent='圖片辨識中：'+m.status+(Number.isFinite(m.progress)?' '+Math.round(m.progress*100)+'%':'');}});
-  const result=await worker.recognize(image);return result.data.text;
+  const result=await worker.recognize(image);
+  return await recognizeTaiwanPassport(image,result.data.text,worker,base,status)||result.data.text;
  }
  async function readPdf(file,onPage) {
   await loadScript('pdf.min.js','pdfjsLib');pdfjsLib.GlobalWorkerOptions.workerSrc=base+'pdf.worker.min.js';
@@ -29,7 +30,7 @@
   } finally {if(pdf)await pdf.destroy();}
  }
  button.onclick=async()=>{
-  const files=Array.from(input.files||[]);if(!files.length){status.textContent='請先選擇圖片或 PDF 檔案。';return;}
+  const files=Array.from(input.files||[]);if(!files.length){status.textContent='請先選擇圖片、PDF、Word 或 Excel 檔案。';return;}
   if(files.some(f=>f.size>30*1024*1024)){status.textContent='單一檔案請小於 30 MB，請先縮小或分割檔案。';return;}
   button.disabled=true;input.disabled=true;document.getElementById('parseRoster').disabled=true;
   let completed=0;const errors=[];let added=false;
@@ -37,9 +38,10 @@
   try {
    for(const file of files){
     try{status.textContent='讀取 '+file.name;
-     if(file.type==='application/pdf'||/\.pdf$/i.test(file.name))await readPdf(file,appendText);
+     if(/\.(docx|doc|xlsx|xls|csv|tsv)$/i.test(file.name))await readOfficeFile(file,appendText,recognizeImage,loadScript);
+     else if(file.type==='application/pdf'||/\.pdf$/i.test(file.name))await readPdf(file,appendText);
      else if(/^image\/(png|jpeg|webp|bmp|gif)$/.test(file.type)||/\.(png|jpe?g|webp|bmp|gif)$/i.test(file.name)){const url=URL.createObjectURL(file);try{appendText(await recognizeImage(url));}finally{URL.revokeObjectURL(url);}}
-     else throw new Error('不支援此格式，請使用 JPG、PNG、WebP、BMP、GIF 或 PDF。');
+     else throw new Error('不支援此格式，請使用圖片、PDF、Word（.docx／.doc）或 Excel（.xlsx／.xls／.csv）。');
      completed++;
     }catch(e){errors.push(file.name+'：'+(e.name==='PasswordException'?'PDF 有密碼，請先解除密碼。':e.message||'辨識失敗，請重試。'));}
    }
