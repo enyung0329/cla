@@ -1,6 +1,6 @@
 'use strict';
 let roster = [];
-function normalizedText(s) { return s.normalize('NFKC').replace(/\r/g,'').replace(/[‐‑–—]/g,'-'); }
+function normalizedText(s) { return s.normalize('NFKC').replace(/\r/g,'').replace(/\\(?=\s*(?:\n|$))/g,'').replace(/\\([.])/g,'$1').replace(/[‐‑–—]/g,'-'); }
 function parseBirthday(value) {
   let m=normalizedText(value).trim().match(/^(?:民國)?\s*(\d{1,4})[\/年.\-](\d{1,2})[\/月.\-](\d{1,2})日?$/);
   if(!m) return null;
@@ -31,7 +31,8 @@ function parseRosterText(raw) {
   const id=(line.match(/\b[A-Z][12]\d{8}\b/i)||line.match(/\b[A-Z]{2}\d{8}\b/i)||line.match(/\b[A-Z][A-Z0-9]{5,11}\b/i)||[''])[0].toUpperCase();
   let clean=line.replace(date[0],' ').replace(id,' ').replace(/(?:民國|出生日期|出生年月日|生日|姓名|證號|身分證字號|身份證字號|護照號碼|居留證|本國人|外國人|性別|男|女|電話|地址|[：:,;|\t\d])/g,' ');
   const names=clean.match(/[\u3400-\u9fff]{2,5}/g)||[];
-  let name=names[0]||((clean.match(/[A-Za-z]+(?:[ -][A-Za-z]+)+/)||[''])[0].trim());
+  const labeledName=line.match(/(?:要保人姓名|被保險人姓名|姓名)\s*[:：]\s*([^\n]+)/);
+  let name=labeledName?labeledName[1].trim():(names[0]||((clean.match(/[A-Za-z]+(?:[ -][A-Za-z]+)+/)||[''])[0].trim()));
   people.push({nationality:/^[A-Z][12]\d{8}$/.test(id)?'本國人':id?'外國人':'',id,name,birth:rocBirthday(date[0]),gender:/女/.test(line)?'女':/男/.test(line)?'男':/^[A-Z][12]\d{8}$/.test(id)?(id[1]==='1'?'男':'女'):''});
  }
  // Preserve people with an ID but missing birthday for manual completion.
@@ -39,7 +40,7 @@ function parseRosterText(raw) {
   const ids=[...line.matchAll(/\b[A-Z][A-Z0-9]{5,11}\b/gi)];
   for(const match of ids) {
    const id=match[0].toUpperCase();if(people.some(p=>p.id.toUpperCase()===id))continue;
-   if(/航班|去程|回程/.test(line))continue;
+   if(/航班|去程|回程|計畫代號|預估保費/.test(line))continue;
    const name=(line.replace(match[0],'').replace(/姓名|證號|身分證字號|身份證字號|本國人|外國人|男|女/g,'').match(/[\u3400-\u9fff]{2,5}/)||[''])[0];
    people.push({nationality:/^[A-Z][12]\d{8}$/.test(id)?'本國人':'外國人',id,name,birth:'',gender:/女/.test(line)?'女':/男/.test(line)?'男':''});
   }
@@ -47,7 +48,8 @@ function parseRosterText(raw) {
  const phone=(text.match(/(?:\+886[- ]?9\d{2}|09\d{2})[- ]?\d{3}[- ]?\d{3}|0[2-8][- ]?\d{3,4}[- ]?\d{4}(?:\s*(?:#|分機)\d+)?/)||[''])[0];
  const address=(text.match(/(?:地址|住址|通訊地址)\s*[:：]?\s*([^\n]+)/)||[])[1]||'';
  const flight=(label)=>((text.match(new RegExp('(?:'+label+')[^\\nA-Za-z]*([A-Za-z0-9]{2}\\s?\\d{2,4})','i'))||[])[1]||'').replace(/\s/g,'').toUpperCase();
- return {people,phone,address,flightGo:flight('去程|出發航班'),flightBack:flight('回程|回國航班')};
+ const bareFlights=text.split('\n').map(s=>s.trim()).filter(s=>/^[A-Z0-9]{2}\s?\d{2,4}$/i.test(s)).map(s=>s.replace(/\s/g,'').toUpperCase());
+ return {people,phone,address,flightGo:flight('去程|出發航班')||bareFlights[0]||'',flightBack:flight('回程|回國航班')||bareFlights[1]||''};
 }
 function rosterIssues(p) {
  const a=rosterAge(p.birth,document.getElementById('endDate').value),issues=[];
@@ -79,10 +81,12 @@ function syncRepresentative() {
  document.getElementById('insuredRep').value=p.name;
 }
 function rosterNotification() {
- if(!roster.length)return '投保名冊：待確認';
+ if(!roster.length)return '投保名冊（年齡以回國日計，滿六個月進位）：';
  return '投保名冊（年齡以回國日計，滿六個月進位）：\n'+roster.map((p,i)=>{
  const a=rosterAge(p.birth,document.getElementById('endDate').value);
- return [i+1,p.nationality,p.id,p.name,p.birth,p.gender,a?a.rounded+'歲':'',rosterIssues(p)].map(v=>v===''?'待確認':v).join(' / ');
+ const fields=[i+1,p.nationality,p.id,p.name,p.birth,p.gender,a?a.rounded+'歲':''].map(v=>v===''?'待確認':v);
+ const issues=rosterIssues(p);if(issues)fields.push(issues);
+ return fields.join(' / ');
  }).join('\n');
 }
 document.getElementById('parseRoster').onclick=()=>{
