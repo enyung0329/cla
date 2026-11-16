@@ -12,8 +12,8 @@
  async function recognizeImage(image) {
   await loadScript('tesseract.min.js','Tesseract');
   if(!worker)worker=await Tesseract.createWorker('chi_tra+eng',1,{workerPath:base+'worker.min.js',corePath:base,langPath:base,workerBlobURL:false,logger:m=>{if(m.status)status.textContent='圖片辨識中：'+m.status+(Number.isFinite(m.progress)?' '+Math.round(m.progress*100)+'%':'');}});
-  const result=await worker.recognize(image);
-  return await recognizeTaiwanPassport(image,result.data.text,worker,base,status)||result.data.text;
+  const result=await worker.recognize(image,{}, {blocks:true});
+  return await recognizeTaiwanPassport(image,result.data.text,worker,base,status,result.data)||result.data.text;
  }
  async function readPdf(file,onPage) {
   await loadScript('pdf.min.js','pdfjsLib');pdfjsLib.GlobalWorkerOptions.workerSrc=base+'pdf.worker.min.js';

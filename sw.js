@@ -1,4 +1,4 @@
-const CACHE_NAME = 'chunglun-wongwang-v22.4';
+const CACHE_NAME = 'chunglun-wongwang-v22.5';
 const URLS_TO_CACHE = [
   "./",
   "./index.html",
@@ -6,7 +6,9 @@ const URLS_TO_CACHE = [
   "./icon-192.png",
   "./icon-512.png",
   "./vendor/chi_tra.traineddata.gz",
+  "./vendor/chi_tra_best.traineddata.gz",
   "./vendor/eng.traineddata.gz",
+  "./vendor/eng_best.traineddata.gz",
   "./vendor/fflate.min.js",
   "./vendor/pdf.min.js",
   "./vendor/pdf.worker.min.js",

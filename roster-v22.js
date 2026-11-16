@@ -22,7 +22,7 @@ function parseRosterText(raw) {
  let text=normalizedText(raw);const people=[];
  text=text.replace(/\[護照資料開始\]([\s\S]*?)\[護照資料結束\]/g,(_,block)=>{const p=parsePassportFields(block);if(p)people.push(p);return '';});
  // Anchors are birthdays, allowing name and ID to appear before or after them.
- const dates=[...text.matchAll(/(?:民國\s*)?\b\d{2,4}[\/年.\-]\d{1,2}[\/月.\-]\d{1,2}日?|\b\d{6,7}\b/g)].filter(m=>{if(!/^\d{6,7}$/.test(m[0]))return true;const start=text.lastIndexOf('\n',m.index)+1,end=text.indexOf('\n',m.index);const row=text.slice(start,end<0?text.length:end);return parseBirthday(m[0])&&(/生日|出生|[A-Z][12]\d{8}/i.test(row)||/[\u3400-\u9fff]{2,5}\s+\d{6,7}/.test(row));});
+ const dates=[...text.matchAll(/(?:民國\s*)?\b(?:\d{2,4}([\/.\-])\d{1,2}\1\d{1,2}|\d{2,4}年\d{1,2}月\d{1,2}日?)|\b\d{6,7}\b/g)].filter(m=>{if(!/^\d{6,7}$/.test(m[0]))return true;const start=text.lastIndexOf('\n',m.index)+1,end=text.indexOf('\n',m.index);const row=text.slice(start,end<0?text.length:end);return parseBirthday(m[0])&&(/生日|出生|[A-Z][12]\d{8}/i.test(row)||/[\u3400-\u9fff]{2,5}\s+\d{6,7}/.test(row));});
  for(let i=0;i<dates.length;i++) {
   const date=dates[i];let start=text.lastIndexOf('\n',date.index)+1,end=text.indexOf('\n',date.index);if(end<0)end=text.length;
   if(i&&dates[i-1].index>=start)start=dates[i-1].index+dates[i-1][0].length;
@@ -41,6 +41,7 @@ function parseRosterText(raw) {
  }
  // Preserve people with an ID but missing birthday for manual completion.
  for(const line of text.split('\n')) {
+  if(/@/.test(line)&&!/(?:身[分份]證|證號|護照)/.test(line))continue;
   const ids=[...line.matchAll(/\b[A-Z]{1,3}\d{5,10}\b/gi)];
   for(const match of ids) {
    const id=match[0].toUpperCase();if(people.some(p=>p.id.toUpperCase()===id))continue;
@@ -52,7 +53,7 @@ function parseRosterText(raw) {
  const phone=(text.match(/(?<![A-Z0-9])(?:(?:\+886[- ]?9\d{2}|09\d{2})[- ]?\d{3}[- ]?\d{3}|0[2-8][- ]?\d{3,4}[- ]?\d{4}(?:\s*(?:#|分機)\d+)?)(?!\d)/i)||[''])[0];
  const address=(text.match(/(?:地址|住址|通訊地址)\s*[:：]?\s*([^\n]+)/)||[])[1]||'';
  const flight=(label)=>((text.match(new RegExp('(?:'+label+')[^\\nA-Za-z]*([A-Za-z0-9]{2}\\s?\\d{2,4})','i'))||[])[1]||'').replace(/\s/g,'').toUpperCase();
- const bareFlights=text.split('\n').map(s=>s.trim()).filter(s=>/^[A-Z0-9]{2}\s?\d{2,4}$/i.test(s)).map(s=>s.replace(/\s/g,'').toUpperCase());
+ const bareFlights=text.split('\n').map(s=>s.trim()).map(s=>s.match(/^(?:(?:\d{4}[\/-])?\d{1,2}[\/-]\d{1,2}\s+)?([A-Z0-9]{2}\s?\d{2,4})(?:\s.*)?$/i)?.[1]).filter(Boolean).map(s=>s.replace(/\s/g,'').toUpperCase());
  const locationLabel=(text.match(/(?:旅遊地點|旅遊國家|目的地)\s*[:：]\s*([^\n]+)/)||[])[1];
  const countries=['日本','越南','韓國','南韓','泰國','中國大陸','香港','澳門','新加坡','馬來西亞','印尼','菲律賓','美國','加拿大','英國','法國','德國','義大利','意大利','瑞士','澳洲','紐西蘭','台灣','臺灣'];
  const destination=locationLabel?.trim()||countries.filter(c=>text.includes(c)).join('、');
