@@ -1,8 +1,17 @@
-const CACHE_NAME = 'chunglun-wongwang-v22.2';
+const CACHE_NAME = 'chunglun-wongwang-v22.3';
 const URLS_TO_CACHE = [
   './',
   './index.html',
-  './roster-v22.js',
+  "./vendor/chi_tra.traineddata.gz",
+  "./vendor/eng.traineddata.gz",
+  "./vendor/pdf.min.js",
+  "./vendor/pdf.worker.min.js",
+  "./vendor/tesseract-core-lstm.wasm",
+  "./vendor/tesseract-core-lstm.wasm.js",
+  "./vendor/tesseract-core-simd-lstm.wasm",
+  "./vendor/tesseract-core-simd-lstm.wasm.js",
+  "./vendor/tesseract.min.js",
+  "./vendor/worker.min.js",
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
