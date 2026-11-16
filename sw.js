@@ -1,7 +1,8 @@
-const CACHE_NAME = 'chunglun-wongwang-v21';
+const CACHE_NAME = 'chunglun-wongwang-v22';
 const URLS_TO_CACHE = [
   './',
   './index.html',
+  './roster-v22.js',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png'
@@ -17,7 +18,7 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
       return Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        keys.filter(k => k.startsWith('chunglun-wongwang-') && k !== CACHE_NAME).map(k => caches.delete(k))
       );
     })
   );
@@ -31,7 +32,7 @@ self.addEventListener('fetch', event => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
         return response;
-      }).catch(() => caches.match(request))
+      }).catch(() => caches.match(request).then(r => r || caches.match('./index.html')))
     );
   } else {
     event.respondWith(
